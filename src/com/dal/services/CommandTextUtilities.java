@@ -55,7 +55,7 @@ public class CommandTextUtilities {
     public String generateRandom(int count) {
         StringBuilder builder = new StringBuilder();
         while (count-- != 0) {
-            int character = (random.nextInt() * RANDOM_STRING_SOURCE.length());
+            int character = (int) (Math.random() * RANDOM_STRING_SOURCE.length());
             builder.append(RANDOM_STRING_SOURCE.charAt(character));
         }
         return builder.toString();

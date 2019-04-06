@@ -30,7 +30,7 @@ public class AuthService implements AuthServiceInterface {
         Statement checkAuthenticationStatement = connection.createStatement();
         ResultSet checkAuthResults = checkAuthenticationStatement.executeQuery("select if(count(*) = 1, 1, 0)\n" +
                 "from employees\n" +
-                "where employees.LastName=\'@lastName\'\n" +
+                "where employees.LastName=\'" + lastName + "\'\n" +
                 "and BirthDate=\'" + dateFormat + "\';");
 
         ResultSetMetaData resultSetMetaData = checkAuthResults.getMetaData();

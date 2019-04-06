@@ -45,7 +45,7 @@ public class OutputFrame {
         StringBuilder output = new StringBuilder();
         output.append(outputFrame.getProtocol()).append(" ").append(outputFrame.getStatusCode()).append(" ").append(outputFrame.getStatus()).append("\n");
         for (Map.Entry<String, String> entry : outputFrame.getHeaderValues().entrySet()) {
-            output.append(output).append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+            output.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
         }
         return output.toString();
     }
