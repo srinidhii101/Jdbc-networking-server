@@ -94,7 +94,7 @@ public class Server {
                 break;
             }
             case "LOGOUT": {
-                if (checkauthenticaion(inputFrame)) break;
+                if (checkauthentication(inputFrame)) break;
                 outputFrame.setProtocol(inputFrame.getProtocol());
                 outputFrame.setStatusCode("200");
                 outputFrame.setStatus("ok");
@@ -103,7 +103,7 @@ public class Server {
             }
             case "LIST": {
                 OrderService orderService = new OrderService();
-                if (checkauthenticaion(inputFrame)) break;
+                if (checkauthentication(inputFrame)) break;
                 switch (inputFrame.getTarget().toLowerCase()) {
                     case "customer": {
                         outputFrame.setProtocol(inputFrame.getProtocol());
@@ -163,7 +163,7 @@ public class Server {
                 break;
             }
             case "NEW": {
-//                if (checkauthenticaion(inputFrame)) break;
+                if (checkauthentication(inputFrame)) break;
                 String address = inputFrame.getHeaders().get("Address");
                 String city = inputFrame.getHeaders().get("City");
                 String region = inputFrame.getHeaders().get("Region");
@@ -192,6 +192,27 @@ public class Server {
                     break;
                 }
             }
+            case "ADD": {
+//                if (checkauthentication(inputFrame)) break;
+                OrderService orderService = new OrderService();
+                if (orderService.getProductStatus(inputFrame.getTarget()) == 1) {
+                    outputFrame.setProtocol(inputFrame.getProtocol());
+                    outputFrame.setStatusCode("407");
+                    outputFrame.setStatus("Discontinued Item");
+                    outputFrame.setHeaderValues(new HashMap<>());
+                    break;
+                } else {
+                    outputFrame.setProtocol(inputFrame.getProtocol());
+                    outputFrame.setStatusCode("200");
+                    outputFrame.setStatus("ok ");
+                    outputFrame.setHeaderValues(new HashMap<>());
+                    OrderDTO orderDTO = new OrderDTO();
+                    orderDTO.setProductId(inputFrame.getTarget());
+                    orderDTO.setQuantity(inputFrame.getBody());
+                    currentOrderList.add(orderDTO);
+                    break;
+                }
+            }
             default:
                 outputFrame.setProtocol(inputFrame.getProtocol());
                 outputFrame.setStatusCode("403");
@@ -202,7 +223,7 @@ public class Server {
         return outputFrame;
     }
 
-    private static boolean checkauthenticaion(InputFrame inputFrame) {
+    private static boolean checkauthentication(InputFrame inputFrame) {
         try {
             checkAuthToken(inputFrame.getHeaders().get("Cookie"));
         } catch (NetworkInputException e) {

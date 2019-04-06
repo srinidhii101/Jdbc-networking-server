@@ -39,10 +39,12 @@ public class CommandTextUtilities {
             inputFrame.setProtocol(version);
 
             for (int i = 1; i < commandText.size(); i++) {
-                headerValues.put(
-                        commandText.get(i).split(":")[0],
-                        commandText.get(i).split(":")[1]
-                );
+                if (commandText.get(i).split(":").length == 2) {
+                    headerValues.put(
+                            commandText.get(i).split(":")[0],
+                            commandText.get(i).split(":")[1]
+                    );
+                } else inputFrame.setBody(commandText.get(i));
             }
             inputFrame.setHeaders(headerValues);
             return inputFrame;

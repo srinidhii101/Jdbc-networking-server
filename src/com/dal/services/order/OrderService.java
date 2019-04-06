@@ -61,4 +61,27 @@ public class OrderService implements OrderServiceInterface {
         connection.close();
         return listOfCustomers;
     }
+
+    @Override
+    public Integer getProductStatus(String productId) throws SQLException, ClassNotFoundException {
+        int isDiscontinued = 0;
+        Connection connection = jdbcConnector.connectionProvider(jdbcConfig);
+        Statement useDatabaseStatement = connection.createStatement();
+        useDatabaseStatement.executeQuery("USE " + jdbcConfig.getDatabase());
+
+        Statement productStatusStatement = connection.createStatement();
+        ResultSet productStatusResults = productStatusStatement.executeQuery("select products.productID, IF(class_3901.products.discontinued = 1, 1, 0)\n" +
+                "from products\n" +
+                "where products.productID=\'" + productId + "\';");
+
+        ResultSetMetaData resultSetMetaData = productStatusResults.getMetaData();
+        while (productStatusResults.next()) {
+            if (resultSetMetaData.getColumnCount() == 2) {
+                Long result = (Long) productStatusResults.getObject(2);
+                isDiscontinued = result.intValue();
+            }
+        }
+        connection.close();
+        return isDiscontinued;
+    }
 }

@@ -11,4 +11,6 @@ public interface OrderServiceInterface {
     List<ProductDTO> getProducts() throws SQLException, ClassNotFoundException;
 
     List<CustomerDTO> getCustomers() throws SQLException, ClassNotFoundException;
+
+    Integer getProductStatus(String productId) throws SQLException, ClassNotFoundException;
 }
