@@ -162,6 +162,36 @@ public class Server {
                 }
                 break;
             }
+            case "NEW": {
+//                if (checkauthenticaion(inputFrame)) break;
+                String address = inputFrame.getHeaders().get("Address");
+                String city = inputFrame.getHeaders().get("City");
+                String region = inputFrame.getHeaders().get("Region");
+                String postalCode = inputFrame.getHeaders().get("PostalCode");
+                String country = inputFrame.getHeaders().get("Country");
+
+                if (address == null && city == null && region == null && postalCode == null && country == null) {
+                    outputFrame.setProtocol(inputFrame.getProtocol());
+                    outputFrame.setStatusCode("200");
+                    outputFrame.setStatus("ok");
+                    outputFrame.setHeaderValues(new HashMap<>());
+                    currentOrder = true;
+                    break;
+                } else if (address == null || city == null || region == null || postalCode == null || country == null) {
+                    outputFrame.setProtocol(inputFrame.getProtocol());
+                    outputFrame.setStatusCode("405");
+                    outputFrame.setStatus("Incomplete Address");
+                    outputFrame.setHeaderValues(new HashMap<>());
+                    break;
+                } else {
+                    outputFrame.setProtocol(inputFrame.getProtocol());
+                    outputFrame.setStatusCode("200");
+                    outputFrame.setStatus("ok ");
+                    outputFrame.setHeaderValues(new HashMap<>());
+                    currentOrder = true;
+                    break;
+                }
+            }
             default:
                 outputFrame.setProtocol(inputFrame.getProtocol());
                 outputFrame.setStatusCode("403");
