@@ -1,13 +1,22 @@
 package com.dal.models;
 
-        import java.util.HashMap;
-        import java.util.Map;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OutputFrame {
     String protocol;
     String statusCode;
     String status;
     Map<String, String> headerValues = new HashMap<>();
+    String body;
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
 
     public String getProtocol() {
         return protocol;
@@ -47,6 +56,7 @@ public class OutputFrame {
         for (Map.Entry<String, String> entry : outputFrame.getHeaderValues().entrySet()) {
             output.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
         }
+        if (outputFrame.getBody() != null) output.append(outputFrame.getBody());
         return output.toString();
     }
 }

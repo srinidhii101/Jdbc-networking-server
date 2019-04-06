@@ -1,10 +1,10 @@
 package com.dal;
 
 import com.dal.exception.NetworkInputException;
-import com.dal.models.InputFrame;
-import com.dal.models.OutputFrame;
+import com.dal.models.*;
 import com.dal.services.CommandTextUtilities;
 import com.dal.services.auth.AuthService;
+import com.dal.services.order.OrderService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +26,8 @@ public class Server {
 
     public static String AUTH_TOKEN;
     public static OutputFrame outputFrame = new OutputFrame();
+    public static boolean currentOrder;
+    public static List<OrderDTO> currentOrderList = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
         ServerSocket serverSocket = null;
@@ -92,25 +94,95 @@ public class Server {
                 break;
             }
             case "LOGOUT": {
-                try {
-                    checkAuthToken(inputFrame.getHeaders().get("Cookie"));
-                } catch (NetworkInputException e) {
-                    outputFrame.setProtocol(inputFrame.getProtocol());
-                    outputFrame.setStatusCode("401");
-                    outputFrame.setStatus("unauthorised");
-                    outputFrame.setHeaderValues(new HashMap<>());
-                    break;
-                }
+                if (checkauthenticaion(inputFrame)) break;
                 outputFrame.setProtocol(inputFrame.getProtocol());
                 outputFrame.setStatusCode("200");
                 outputFrame.setStatus("ok");
                 AUTH_TOKEN = "";
                 break;
             }
+            case "LIST": {
+                OrderService orderService = new OrderService();
+                if (checkauthenticaion(inputFrame)) break;
+                switch (inputFrame.getTarget().toLowerCase()) {
+                    case "customer": {
+                        outputFrame.setProtocol(inputFrame.getProtocol());
+                        outputFrame.setStatusCode("200");
+                        outputFrame.setStatus("ok");
+                        outputFrame.setHeaderValues(new HashMap<>());
+                        List<CustomerDTO> customerList = orderService.getCustomers();
+                        StringBuilder responseBody = new StringBuilder();
+                        for (CustomerDTO customerDTO : customerList) {
+                            responseBody.append(customerDTO.getCustomerID()).append("\t").append(customerDTO.getCustomerName()).append("\n");
+                        }
+                        outputFrame.setBody(responseBody.toString());
+                        outputFrame.setHeaderValues(new HashMap<>());
+                        outputFrame.getHeaderValues().put("Content-Length", Integer.toString(responseBody.toString().getBytes().length));
+                        break;
+                    }
+                    case "product": {
+                        outputFrame.setProtocol(inputFrame.getProtocol());
+                        outputFrame.setStatusCode("200");
+                        outputFrame.setStatus("ok");
+                        outputFrame.setHeaderValues(new HashMap<>());
+                        List<ProductDTO> productDTOList = orderService.getProducts();
+                        StringBuilder responseBody = new StringBuilder();
+                        for (ProductDTO productDTO : productDTOList) {
+                            responseBody.append(productDTO.getProductID()).append("\t").append(productDTO.getProductName()).append("\n");
+                        }
+                        outputFrame.setBody(responseBody.toString());
+                        outputFrame.setHeaderValues(new HashMap<>());
+                        outputFrame.getHeaderValues().put("Content-Length", Integer.toString(responseBody.toString().getBytes().length));
+                        break;
+                    }
+                    case "order": {
+                        if (!currentOrder) {
+                            outputFrame.setProtocol(inputFrame.getProtocol());
+                            outputFrame.setStatusCode("402");
+                            outputFrame.setStatus("Order not open");
+                            outputFrame.setHeaderValues(new HashMap<>());
+                            break;
+                        }
+                        StringBuilder responseBody = new StringBuilder();
+                        for (OrderDTO orderDTO : currentOrderList) {
+                            responseBody.append(orderDTO.getProductId()).append("\t").append(orderDTO.getQuantity()).append("\n");
+                        }
+                        outputFrame.setBody(responseBody.toString());
+                        outputFrame.setHeaderValues(new HashMap<>());
+                        outputFrame.getHeaderValues().put("Content-Length", Integer.toString(responseBody.toString().getBytes().length));
+                        break;
+                    }
+                    default: {
+                        outputFrame.setProtocol(inputFrame.getProtocol());
+                        outputFrame.setStatusCode("403");
+                        outputFrame.setStatus("Bad Target");
+                        outputFrame.setHeaderValues(new HashMap<>());
+                        break;
+                    }
+                }
+                break;
+            }
             default:
-                System.out.println("No Case Matched");
+                outputFrame.setProtocol(inputFrame.getProtocol());
+                outputFrame.setStatusCode("403");
+                outputFrame.setStatus("Bad Target");
+                outputFrame.setHeaderValues(new HashMap<>());
+                break;
         }
         return outputFrame;
+    }
+
+    private static boolean checkauthenticaion(InputFrame inputFrame) {
+        try {
+            checkAuthToken(inputFrame.getHeaders().get("Cookie"));
+        } catch (NetworkInputException e) {
+            outputFrame.setProtocol(inputFrame.getProtocol());
+            outputFrame.setStatusCode("401");
+            outputFrame.setStatus("unauthorised");
+            outputFrame.setHeaderValues(new HashMap<>());
+            return true;
+        }
+        return false;
     }
 
     public static void checkAuthToken(String authToken) throws NetworkInputException {
