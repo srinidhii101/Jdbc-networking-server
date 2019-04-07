@@ -28,6 +28,7 @@ public class Server {
     public static OutputFrame outputFrame = new OutputFrame();
     public static boolean currentOrder;
     public static List<OrderDTO> currentOrderList = new ArrayList<>();
+    public static Integer orderNumber;
 
     public static void main(String[] args) throws Exception {
         ServerSocket serverSocket = null;
@@ -83,7 +84,7 @@ public class Server {
                     outputFrame.setStatusCode("200");
                     outputFrame.setStatus("ok");
                     outputFrame.setHeaderValues(new HashMap<>());
-                    AUTH_TOKEN = commandTextUtilities.generateRandom(10);
+                    AUTH_TOKEN = commandTextUtilities.generateRandomAlphaNumeric(10);
                     outputFrame.getHeaderValues().put("Set-Cookie", AUTH_TOKEN);
                 } else {
                     outputFrame.setProtocol(inputFrame.getProtocol());
@@ -193,7 +194,7 @@ public class Server {
                 }
             }
             case "ADD": {
-//                if (checkauthentication(inputFrame)) break;
+                if (checkauthentication(inputFrame)) break;
                 OrderService orderService = new OrderService();
                 if (orderService.getProductStatus(inputFrame.getTarget()) == 1) {
                     outputFrame.setProtocol(inputFrame.getProtocol());
@@ -212,6 +213,27 @@ public class Server {
                     currentOrderList.add(orderDTO);
                     break;
                 }
+            }
+            case "ORDER": {
+                if (checkauthentication(inputFrame)) break;
+                orderNumber = Integer.parseInt(commandTextUtilities.generateRandomNumeric(4));
+                outputFrame.setProtocol(inputFrame.getProtocol());
+                outputFrame.setStatusCode("200");
+                outputFrame.setStatus("ok ");
+                outputFrame.setBody(orderNumber.toString());
+                outputFrame.setHeaderValues(new HashMap<>());
+                outputFrame.getHeaderValues().put("Content-Length", Integer.toString(orderNumber.toString().getBytes().length));
+                break;
+            }
+            case "DROP": {
+                if (checkauthentication(inputFrame)) break;
+                outputFrame.setProtocol(inputFrame.getProtocol());
+                outputFrame.setStatusCode("200");
+                outputFrame.setStatus("ok ");
+                currentOrder = false;
+                currentOrderList.clear();
+                orderNumber = null;
+                break;
             }
             default:
                 outputFrame.setProtocol(inputFrame.getProtocol());

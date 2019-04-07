@@ -9,6 +9,7 @@ public class CommandTextUtilities {
 
     List<String> allowedOps;
     private static final String RANDOM_STRING_SOURCE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final String RANDOM_STRING_SOURCE_NUMERIC = "0123456789";
     Random random = new Random();
 
     public CommandTextUtilities() {
@@ -54,11 +55,20 @@ public class CommandTextUtilities {
         }
     }
 
-    public String generateRandom(int count) {
+    public String generateRandomAlphaNumeric(int count) {
         StringBuilder builder = new StringBuilder();
         while (count-- != 0) {
             int character = (int) (Math.random() * RANDOM_STRING_SOURCE.length());
             builder.append(RANDOM_STRING_SOURCE.charAt(character));
+        }
+        return builder.toString();
+    }
+
+    public String generateRandomNumeric(int count) {
+        StringBuilder builder = new StringBuilder();
+        while (count-- != 0) {
+            int character = (int) (Math.random() * RANDOM_STRING_SOURCE_NUMERIC.length());
+            builder.append(RANDOM_STRING_SOURCE_NUMERIC.charAt(character));
         }
         return builder.toString();
     }
