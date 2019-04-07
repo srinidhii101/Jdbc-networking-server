@@ -62,7 +62,14 @@ public class Server {
                         commandText.add(tempInput);
                 }
                 if (commandText.size() > 0) {
-                    outputFrame = commandRecieved(commandText);
+                    try {
+                        outputFrame = commandRecieved(commandText);
+                    }catch (Exception ex){
+                        outputFrame.setProtocol("Order3901/1.0");
+                        outputFrame.setStatusCode("400");
+                        outputFrame.setStatus("Bad Request");
+                        outputFrame.setHeaderValues(new HashMap<>());
+                    }
                     out.println(prepareOutputFrame(outputFrame));
                     System.out.println(prepareOutputFrame(outputFrame));
                     commandText.clear();
